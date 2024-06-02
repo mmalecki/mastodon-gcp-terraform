@@ -52,3 +52,7 @@ output "redis_auth_string" {
 output "ingress_ipv4_name" {
   value = google_compute_global_address.reserved_ipv4_address.name
 }
+
+output "dns_zone_name_servers" {
+  value = google_dns_managed_zone.dns_zone.name_servers
+}

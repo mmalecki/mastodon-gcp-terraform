@@ -20,27 +20,7 @@ terraform {
     #   version = ">= 0.7.0, < 0.8.0"
     # }
   }
-
-  backend "gcs" {
-    bucket      = "interledger-social-terraform"
-    prefix      = "terraform/state"
-    credentials = "../terraform-sa.json"
-  }
 }
-
-provider "google" {
-  region      = var.region
-  zone        = var.zone
-  project     = var.project
-  credentials = var.credentials_file_path
-}
-provider "google-beta" {
-  region      = var.region
-  zone        = var.zone
-  project     = var.project
-  credentials = var.credentials_file_path
-}
-
 data "google_client_config" "default" {
   provider = google-beta
 }
@@ -121,8 +101,10 @@ resource "google_compute_global_address" "reserved_ipv4_address" {
   ip_version   = "IPV4"
 }
 
-# data "google_compute_address" "reserved_ipv6_address" {
-#   name = var.reserved_ipv6_address_name
+# resource "google_compute_global_address" "reserved_ipv6_address" {
+#   name         = var.reserved_ipv6_address_name
+#   address_type = "EXTERNAL"
+#   ip_version   = "IPV6"
 # }
 
 # Set the DNS records
@@ -148,7 +130,7 @@ resource "google_dns_record_set" "mastodon_dns_a_record" {
 #   name    = "${var.mastodon_domain_name}."
 #   type    = "AAAA"
 #   ttl     = 3600
-#   rrdatas = [data.google_compute_address.reserved_ipv6_address.address]
+#   rrdatas = [google_compute_address.reserved_ipv6_address.address]
 
 #   managed_zone = google_dns_managed_zone.dns_zone.name
 # }
@@ -269,14 +251,10 @@ resource "google_sql_user" "user" {
 }
 
 # Kubernetes Cluster
-data "google_service_account" "terraform_sa" {
-  account_id = var.service_account_name
-}
-
 module "gke" {
   # source = "terraform-google-modules/kubernetes-engine/google"
   # Autopilot GKE clusters are the recommended default, but not yet available in the non-beta provider
-  source                          = "terraform-google-modules/kubernetes-engine/google//modules/beta-autopilot-public-cluster"
+  source                          = "../../terraform-google-kubernetes-engine/modules/beta-autopilot-public-cluster"
   project_id                      = var.project
   name                            = var.mastodon_kubernetes_cluster_name
   regional                        = true
@@ -285,10 +263,16 @@ module "gke" {
   subnetwork                      = var.subnet_name
   ip_range_pods                   = var.kubernetes_pods_ip_range_name
   ip_range_services               = var.kubernetes_services_ip_range_name
+  enable_l4_ilb_subsetting        = true
   stack_type                      = "IPV4_IPV6"
   enable_vertical_pod_autoscaling = true
   workload_config_audit_mode      = "BASIC"
   workload_vulnerability_mode     = "BASIC"
+
+  security_posture_mode               = "BASIC"
+  security_posture_vulnerability_mode = "VULNERABILITY_BASIC"
+
+  deletion_protection = false
 }
 
 # Elastic Cloud instance

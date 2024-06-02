@@ -4,8 +4,6 @@ project = "my-gcp-mastodon-project-999999"
 
 credentials_file_path = "../terraform-sa.json"
 
-service_account_name = "terraform-sa"
-
 mastodon_domain_name = "example.com"
 
 storage_domain_name = "files.example.com"

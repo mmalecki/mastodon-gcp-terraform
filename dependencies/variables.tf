@@ -1,13 +1,6 @@
-variable "credentials_file_path" {
-  description = "Path to the JSON file of the service account credentials"
-  sensitive   = true
-}
-
 variable "project" {
   description = "GCP project name"
 }
-
-variable "service_account_name" {}
 
 variable "region" {
   # Consider the planet: https://cloud.google.com/sustainability/region-carbon

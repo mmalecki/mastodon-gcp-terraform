@@ -1,9 +1,6 @@
-variable "credentials_file_path" {
-  description = "Path to the JSON file of the service account credentials"
-  sensitive   = true
-}
-
 variable "project" {}
+
+variable "dependencies" {}
 
 variable "region" {
   # Consider the planet: https://cloud.google.com/sustainability/region-carbon
@@ -34,6 +31,12 @@ variable "create_admin_username" {
   default = ""
 }
 variable "local_domain" {}
+variable "web_domain" {
+  default = null
+}
+variable "smtp_domain" {
+  default = null
+}
 variable "otp_secret" {}
 variable "secret_key_base" {}
 variable "smtp_auth_method" {
@@ -52,3 +55,6 @@ variable "smtp_port" {
 variable "smtp_server" {}
 variable "vapid_private_key" {}
 variable "vapid_public_key" {}
+variable "active_record_encryption_primary_key" {}
+variable "active_record_encryption_deterministic_key" {}
+variable "active_record_encryption_key_derivation_salt" {}
